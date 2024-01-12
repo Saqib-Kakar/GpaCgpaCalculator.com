@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate your GPA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 80%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: crimson;
+            margin-bottom: 10px;
+        }
+
+      img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 30px;
+        }
+
+        .Cgpa {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        label,
+        input {
+            margin-bottom: 10px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: crimson;
+            color: #fff;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkred;
+        }
+
+        #averageGPA {
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px solid crimson;
+            border-radius: 5px;
+            background-color: #fff;
+            color: crimson;
+            width: 80%;
+            white-space: pre-line;
+        }
+
+        /* Media Queries for Mobile */
+        @media only screen and (max-width: 600px) {
+            .container {
+                max-width: 100%;
+            }
+
+            img {
+                margin-bottom: 10px;
+            }
+
+            #averageGPA {
+                width: 100%;
+            }
+        }
+        
+       a:hover {
+    color: crimson;
+    text-size-adjust: 10px;
+    font-weight: bold;
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculate your GPA</h1>
+        <div>
+        <img src="GPA.png" alt="logo" width="100px">
+        </div>
+        <div class="Cgpa">
+            <form id="cgpaForm">
+                <table id="dataTable">
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Credit Hours</th>
+                        <th>Marks</th>
+                    </tr>
+                </table>
+                <label for="courseName">Course Name(optional)</label>
+                <input type="text" name="courseNames" id="courseNameInput" class="courseName">
+                <label for="creditHours">Credit Hours</label>
+                <input type="number" name="creditHours" id="creditHoursInput" class="creditHours">
+                <label for="marks">Marks</label>
+                <input type="number" step="0.01" name="marks" id="marksInput" class="marks">
+                <button type="button" data-action="addMore" onclick="addRow()">Add more</button>
+                <button type="button" data-action="calculateGPA" onclick="calculateGPA()">Calculate GPA</button>
+            </form> <br>
+            <div id="averageGPA"></div>
+        </div>
+        <br>
+        <a href="cgpa.html">Calculate CGPA</a>
+    </div>
+
+  <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        var data = JSON.parse(localStorage.getItem('gpaData')) || [];
+        var counter = data.length + 1;
+
+        function addRow() {
+            var courseNameInput = document.getElementById("courseNameInput");
+        var creditHoursInput = document.getElementById("creditHoursInput");
+        var marksInput = document.getElementById("marksInput");
+
+        if (creditHoursInput && marksInput) {
+                var courseNameValue = courseNameInput.value || "Course " + counter++;
+        var creditHoursValue = creditHoursInput.value;
+        var marksValue = marksInput.value;
+
+        if (creditHoursValue !== '' && marksValue !== '') {
+            data.push({
+                courseName: courseNameValue,
+                creditHours: creditHoursValue,
+                marks: marksValue
+            });
+
+        saveDataToLocalStorage();
+        clearInputs();
+        updateTable();
+                }
+            }
+        }
+
+        function updateTable() {
+            var table = document.getElementById("dataTable");
+        var newRow = table.insertRow(-1);
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+
+        cell1.innerHTML = data[data.length - 1].courseName;
+        cell2.innerHTML = data[data.length - 1].creditHours;
+        cell3.innerHTML = data[data.length - 1].marks;
+        }
+
+        function clearInputs() {
+            var courseNameInput = document.getElementById("courseNameInput");
+        var creditHoursInput = document.getElementById("creditHoursInput");
+        var marksInput = document.getElementById("marksInput");
+
+        if (courseNameInput && creditHoursInput && marksInput) {
+            courseNameInput.value = '';
+        creditHoursInput.value = '';
+        marksInput.value = '';
+            }
+        }
+
+        function calculateGPA() {
+            addRow();
+
+        var totalPoints = 0;
+        var totalCreditHours = 0;
+
+        for (var i = 0; i < data.length; i++) {
+                var marks = parseFloat(data[i].marks);
+        var creditHours = parseFloat(data[i].creditHours);
+        var points = calculatePoints(marks);
+
+        totalPoints += points * creditHours;
+        totalCreditHours += creditHours;
+            }
+
+        var gpa = totalPoints / totalCreditHours;
+        document.getElementById('averageGPA').innerHTML = "Your GPA is: " + gpa.toFixed(2);
+        }
+
+        function calculatePoints(marks) {
+            if (marks >= 85) {
+                return 4.0;
+            } else if (marks >= 80) {
+                return 3.7;
+            } else if (marks >= 75) {
+                return 3.3;
+            } else if (marks >= 70) {
+                return 3.0;
+            } else if (marks >= 65) {
+                return 2.7;
+            } else if (marks >= 61) {
+                return 2.3;
+            } else if (marks >= 58) {
+                return 2.0;
+            } else if (marks >= 55) {
+                return 1.7;
+            } else if (marks >= 50) {
+                return 1.0;
+            } else {
+                return 0.0;
+            }
+        }
+
+        function saveDataToLocalStorage() {
+            localStorage.setItem('gpaData', JSON.stringify(data));
+        }
+
+        function resetDataAndCounter() {
+            localStorage.removeItem('gpaData');
+        data = [];
+        counter = 1;
+
+        var table = document.getElementById("dataTable");
+            while (table.rows.length > 1) {
+            table.deleteRow(1);
+            }
+        }
+
+        resetDataAndCounter();
+
+        var addMoreButton = document.querySelector('button[data-action="addMore"]');
+        addMoreButton.addEventListener("click", function () {
+            addRow();
+        });
+
+        var calculateButton = document.querySelector('button[data-action="calculateGPA"]');
+        calculateButton.addEventListener("click", function () {
+            calculateGPA();
+        });
+
+     
+
+    });
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate your CGPA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background-color: #f0f0f0;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 80%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            /* Added margin at the top */
+        }
+
+        h1 {
+            color: crimson;
+            margin-bottom: 10px;
+        }
+
+       img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 30px;
+        }
+
+        .Cgpa {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        label,
+        input {
+            margin-bottom: 10px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+
+       a:hover {
+    color: crimson;
+    text-size-adjust: 10px;
+    font-weight: bold;
+}
+
+
+        #averageGPA {
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px solid crimson;
+            border-radius: 5px;
+            background-color: #fff;
+            color: crimson;
+            width: 60%;
+            white-space: pre-line;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-container button,
+        .button-container a {
+            background-color: crimson;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .button-container button:hover,
+        .button-container a:hover {
+            background-color: darkred;
+        }
+
+        /* Media Queries for Mobile */
+        @media only screen and (max-width: 600px) {
+            .container {
+                max-width: 100%;
+            }
+
+            img {
+                margin-bottom: 10px;
+            }
+
+            #averageGPA {
+                width: 100%;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculate your CGPA</h1>
+        <div>
+        <img src="GPA.png" alt="logo" width="100px">
+        </div>
+        <div class="Cgpa">
+            <form id="cgpaForm">
+                <table id="dataTable">
+                    <tr>
+                        <th>Semester Number</th>
+                        <th>GPA</th>
+                    </tr>
+                </table>
+                <label for="gpa">GPA</label>
+                <input type="text" name="gpas" id="gpaInput" class="gpa">
+                <div class="button-container">
+                    <button type="button" onclick="addRow()">Add more</button>
+                    <button type="button" onclick="calculateGPA()">Calculate CGPA</button>
+                </div>
+            </form>
+            <div id="averageGPA"></div>
+        </div>
+        <br>
+        <a href="gpa.html">Calculate GPA</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var data = JSON.parse(localStorage.getItem('cgpaData')) || [];
+            var semesterCounter = data.length + 1;
+
+            function addRow() {
+                var gpaInput = document.getElementById("gpaInput");
+
+                if (gpaInput) {
+                    var gpaValue = gpaInput.value;
+
+                    if (gpaValue !== '') {
+                        data.push({
+                            semester: semesterCounter,
+                            gpa: gpaValue
+                        });
+
+                        clearInputs();
+                        updateTable();
+
+                        semesterCounter++;
+                    }
+                }
+            }
+
+            function updateTable() {
+                var table = document.getElementById("dataTable");
+                var newRow = table.insertRow(-1);
+                var cell1 = newRow.insertCell(0);
+                var cell2 = newRow.insertCell(1);
+
+                cell1.innerHTML = data[data.length - 1].semester;
+                cell2.innerHTML = data[data.length - 1].gpa;
+
+                localStorage.setItem('cgpaData', JSON.stringify(data));
+            }
+
+            function clearInputs() {
+                var gpaInput = document.getElementById("gpaInput");
+
+                if (gpaInput) {
+                    gpaInput.value = '';
+                }
+            }
+
+            function calculateGPA() {
+                addRow();
+
+                var totalGPA = 0;
+
+                for (var i = 0; i < data.length; i++) {
+                    totalGPA += parseFloat(data[i].gpa);
+                }
+
+                var averageGPA = totalGPA / data.length;
+                document.getElementById('averageGPA').innerHTML = "Your CGPA is: " + averageGPA.toFixed(2);
+            }
+
+            function resetDataAndCounter() {
+                localStorage.removeItem('cgpaData');
+                data = [];
+                semesterCounter = 1;
+
+                var table = document.getElementById("dataTable");
+                while (table.rows.length > 1) {
+                    table.deleteRow(1);
+                }
+            }
+
+            resetDataAndCounter();
+
+            var addMoreButton = document.querySelector('button[type="button"][onclick="addRow()"]');
+            addMoreButton.addEventListener("click", function () {
+                addRow();
+            });
+
+            var calculateButton = document.querySelector('button[type="button"][onclick="calculateGPA()"]');
+            calculateButton.addEventListener("click", function () {
+                calculateGPA();
+            });
+        });
+    </script>
+
+</body>
+
+</html>
